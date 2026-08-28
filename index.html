@@ -425,6 +425,69 @@
     color: var(--ink-soft);
     border-top: 1px solid var(--line);
   }
+  footer .cookie-manage{
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    color: var(--ink-soft);
+  }
+  footer .cookie-manage:hover{ color: var(--forest); }
+
+  /* ---------- COOKIE BANNER ---------- */
+  #cookie-banner{
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 60;
+    background: var(--forest-deep);
+    color: var(--paper);
+    padding: 1.3rem 1.6rem;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+    transform: translateY(0);
+    transition: transform .35s ease;
+  }
+  #cookie-banner.hidden{ transform: translateY(110%); pointer-events: none; }
+  #cookie-banner .cookie-wrap{
+    max-width: var(--max);
+    margin: 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 1.6rem;
+    flex-wrap: wrap;
+  }
+  #cookie-banner p{
+    margin:0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #D8DCD5;
+    max-width: 60ch;
+  }
+  #cookie-banner .cookie-actions{
+    display:flex;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+  }
+  #cookie-banner button{
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.65rem 1.2rem;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid var(--paper);
+    background: transparent;
+    color: var(--paper);
+    transition: background .2s, color .2s;
+  }
+  #cookie-banner button.accept{
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--forest-deep);
+  }
+  #cookie-banner button:hover{ opacity: 0.85; }
+  @media (max-width: 700px){
+    #cookie-banner .cookie-wrap{ flex-direction: column; align-items: flex-start; }
+  }
 </style>
 </head>
 <body>
@@ -667,8 +730,21 @@
 </main>
 
 <footer>
-  <div class="wrap">Muriel Chéron — Coaching pour femmes de 45 à 65 ans</div>
+  <div class="wrap">
+    Muriel Chéron — Coaching pour femmes de 45 à 65 ans
+    · <span class="cookie-manage" id="reopen-cookies">Gérer mes cookies</span>
+  </div>
 </footer>
+
+<div id="cookie-banner" class="hidden">
+  <div class="cookie-wrap">
+    <p>Ce site utilise uniquement des cookies techniques nécessaires à son fonctionnement. Avec ton accord, il pourra aussi utiliser des cookies de mesure d'audience (ex. Google Analytics) pour mieux comprendre les visites. Aucune donnée n'est vendue à des tiers.</p>
+    <div class="cookie-actions">
+      <button id="cookie-decline">Refuser</button>
+      <button id="cookie-accept" class="accept">Accepter</button>
+    </div>
+  </div>
+</div>
 
 <script>
   const observer = new IntersectionObserver((entries) => {
@@ -682,6 +758,45 @@
   document.querySelectorAll('.stair-draw').forEach(el => observer.observe(el));
 
   // burger placeholder for future mobile menu (kept minimal by design)
+
+  // ---------- COOKIE BANNER ----------
+  const cookieBanner = document.getElementById('cookie-banner');
+  const cookieAccept = document.getElementById('cookie-accept');
+  const cookieDecline = document.getElementById('cookie-decline');
+  const reopenCookies = document.getElementById('reopen-cookies');
+
+  function loadAnalyticsIfConsented(){
+    // Si tu ajoutes Google Analytics ou le pixel Meta plus tard,
+    // colle leur code d'installation ici : il ne se chargera
+    // que si la personne a cliqué sur "Accepter".
+    // Exemple :
+    // (function(){ /* code Google Analytics ici */ })();
+  }
+
+  function showBanner(){ cookieBanner.classList.remove('hidden'); }
+  function hideBanner(){ cookieBanner.classList.add('hidden'); }
+
+  const consent = localStorage.getItem('cookie-consent');
+  if(!consent){
+    showBanner();
+  } else if(consent === 'accepted'){
+    loadAnalyticsIfConsented();
+  }
+
+  cookieAccept.addEventListener('click', () => {
+    localStorage.setItem('cookie-consent', 'accepted');
+    hideBanner();
+    loadAnalyticsIfConsented();
+  });
+
+  cookieDecline.addEventListener('click', () => {
+    localStorage.setItem('cookie-consent', 'declined');
+    hideBanner();
+  });
+
+  reopenCookies.addEventListener('click', () => {
+    showBanner();
+  });
 </script>
 
 </body>
